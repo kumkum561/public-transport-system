@@ -8,6 +8,7 @@ if (!token || role !== "user") {
 }
 
 let currentTransport = null;
+let selectedOffer = "";
 
 // ===== LOAD TRANSPORT INFO =====
 async function loadTransport() {
@@ -76,24 +77,64 @@ async function loadTransport() {
 }
 
 function getModeIcon(mode) {
-    const icons = { "Bus": "fa-bus", "Train": "fa-train", "Metro": "fa-subway", "Ferry": "fa-ship" };
+    const icons = { "Bus": "fa-bus", "Train": "fa-train", "Metro": "fa-subway" };
     return icons[mode] || "fa-bus";
+}
+
+// ===== OFFER SELECTION =====
+function selectOffer(offer) {
+    selectedOffer = selectedOffer === offer ? "" : offer;
+    document.querySelectorAll(".offer-card").forEach(card => card.classList.remove("selected"));
+    if (selectedOffer) {
+        document.getElementById("offerCard_" + selectedOffer).classList.add("selected");
+    }
+    updateTotal();
+}
+
+// ===== CALCULATE DISCOUNTED TOTAL =====
+function calcTotal(price, passengers, offer) {
+    let base = price * passengers;
+    let discount = 0;
+    if (offer === "offer1") {
+        discount = base * 0.10;
+    } else if (offer === "offer2") {
+        const pairs = Math.floor(passengers / 2);
+        discount = pairs * price * 0.5;
+    }
+    return { base: base, discount: discount, total: base - discount };
 }
 
 // ===== UPDATE TOTAL =====
 function updateTotal() {
     if (!currentTransport) return;
     const passengers = parseInt(document.getElementById("passengers").value) || 1;
-    const total = currentTransport.price * passengers;
+    const { base, discount, total } = calcTotal(currentTransport.price, passengers, selectedOffer);
+
+    const breakdownEl = document.getElementById("priceBreakdown");
+    if (discount > 0) {
+        breakdownEl.innerHTML = `
+            <div class="breakdown-row">
+                <span>Base amount (${passengers} × ₹${currentTransport.price.toFixed(2)})</span>
+                <span>₹${base.toFixed(2)}</span>
+            </div>
+            <div class="breakdown-row discount-row">
+                <span><i class="fas fa-tag"></i> Discount applied</span>
+                <span>− ₹${discount.toFixed(2)}</span>
+            </div>
+        `;
+        breakdownEl.style.display = "block";
+    } else {
+        breakdownEl.style.display = "none";
+    }
+
     document.getElementById("totalPrice").textContent = total.toFixed(2);
 }
 
-// ===== CONFIRM BOOKING =====
-async function confirmBooking() {
+// ===== OPEN RAZORPAY MODAL =====
+function openPaymentModal() {
     if (!currentTransport) return;
 
     const passengers = parseInt(document.getElementById("passengers").value) || 1;
-    const msgEl = document.getElementById("bookingMsg");
     const errEl = document.getElementById("bookingError");
 
     if (passengers < 1) {
@@ -101,16 +142,51 @@ async function confirmBooking() {
         errEl.classList.add("show");
         return;
     }
-
     if (passengers > currentTransport.seats_available) {
         errEl.textContent = `Only ${currentTransport.seats_available} seats available`;
         errEl.classList.add("show");
         return;
     }
+    errEl.classList.remove("show");
 
-    if (!confirm(`Confirm booking for ${passengers} passenger(s)? Total: ₹${(currentTransport.price * passengers).toFixed(2)}`)) {
-        return;
-    }
+    const { total } = calcTotal(currentTransport.price, passengers, selectedOffer);
+    const amtStr = total.toFixed(2);
+    document.getElementById("rzpAmount").textContent = amtStr;
+    document.getElementById("rzpBtnAmt").textContent = amtStr;
+    document.getElementById("rzpRouteInfo").textContent =
+        `${currentTransport.source} → ${currentTransport.destination} (${passengers} pax)`;
+    document.getElementById("razorpayModal").style.display = "flex";
+}
+
+function closePaymentModal() {
+    document.getElementById("razorpayModal").style.display = "none";
+    const payBtn = document.getElementById("rzpPayBtn");
+    payBtn.disabled = false;
+    const amt = document.getElementById("rzpAmount").textContent;
+    payBtn.innerHTML = `<i class="fas fa-lock"></i> Pay ₹<span id="rzpBtnAmt">${amt}</span>`;
+}
+
+// ===== SIMULATE RAZORPAY PAYMENT =====
+async function simulatePayment() {
+    const payBtn = document.getElementById("rzpPayBtn");
+    payBtn.disabled = true;
+    payBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+
+    // Simulate payment processing delay
+    await new Promise(resolve => setTimeout(resolve, 1800));
+
+    // Close modal and proceed with booking
+    document.getElementById("razorpayModal").style.display = "none";
+    await confirmBooking();
+}
+
+// ===== CONFIRM BOOKING (called after payment) =====
+async function confirmBooking() {
+    if (!currentTransport) return;
+
+    const passengers = parseInt(document.getElementById("passengers").value) || 1;
+    const msgEl = document.getElementById("bookingMsg");
+    const errEl = document.getElementById("bookingError");
 
     try {
         const res = await fetch("/api/booking/create", {
@@ -121,17 +197,22 @@ async function confirmBooking() {
             },
             body: JSON.stringify({
                 transport_id: currentTransport._id,
-                passengers: passengers
+                passengers: passengers,
+                offer: selectedOffer
             })
         });
 
         const data = await res.json();
 
         if (res.ok) {
+            let discountLine = "";
+            if (data.discount_amount > 0) {
+                discountLine = `<br>You saved: <strong>₹${data.discount_amount.toFixed(2)}</strong>`;
+            }
             msgEl.innerHTML = `
-                ✅ ${data.message}<br>
+                ✅ Payment successful! ${data.message}<br>
                 Booking ID: <strong>${data.booking_id}</strong><br>
-                Total Paid: <strong>₹${data.total_price.toFixed(2)}</strong>
+                Total Paid: <strong>₹${data.total_price.toFixed(2)}</strong>${discountLine}
             `;
             msgEl.classList.add("show");
             errEl.classList.remove("show");
