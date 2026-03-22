@@ -953,6 +953,250 @@ a {
     font-size: 0.85rem;
 }
 
+/* ===== OFFERS SECTION ===== */
+.offers-section {
+    margin: 20px 0;
+}
+
+.offers-section h3 {
+    font-size: 1rem;
+    color: #1a1a2e;
+    margin-bottom: 12px;
+}
+
+.offers-section h3 i {
+    color: #e67e22;
+    margin-right: 6px;
+}
+
+.offers-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.offer-card {
+    border: 2px solid #e0e0e0;
+    border-radius: 14px;
+    padding: 14px;
+    cursor: pointer;
+    transition: all 0.25s;
+    background: #fafafa;
+    position: relative;
+}
+
+.offer-card:hover {
+    border-color: #3a7bd5;
+    background: #f0f6ff;
+}
+
+.offer-card.selected {
+    border-color: #27ae60;
+    background: #eafff0;
+}
+
+.offer-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, #f39c12, #e67e22);
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 8px;
+    margin-bottom: 6px;
+}
+
+.offer-card.selected .offer-badge {
+    background: linear-gradient(135deg, #27ae60, #2ecc71);
+}
+
+.offer-title {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #1a1a2e;
+    margin-bottom: 4px;
+}
+
+.offer-desc {
+    font-size: 0.78rem;
+    color: #666;
+}
+
+/* ===== PRICE BREAKDOWN ===== */
+.price-breakdown {
+    background: #fff8e1;
+    border: 1px solid #ffe082;
+    border-radius: 12px;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 0.88rem;
+}
+
+.breakdown-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 0;
+    color: #555;
+}
+
+.breakdown-row.discount-row {
+    color: #27ae60;
+    font-weight: 600;
+}
+
+/* ===== RAZORPAY MODAL ===== */
+.rzp-modal {
+    background: rgba(0, 0, 0, 0.75);
+}
+
+.rzp-modal-content {
+    background: white;
+    border-radius: 16px;
+    width: 100%;
+    max-width: 400px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+}
+
+.rzp-header {
+    background: linear-gradient(135deg, #072654, #1a1a8c);
+    padding: 16px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.rzp-logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: white;
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+.rzp-logo i {
+    color: #00e5ff;
+    font-size: 1.2rem;
+}
+
+.rzp-close {
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.7);
+    font-size: 1.6rem;
+    cursor: pointer;
+    line-height: 1;
+}
+
+.rzp-close:hover {
+    color: white;
+}
+
+.rzp-body {
+    padding: 24px 24px 16px;
+}
+
+.rzp-merchant {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.rzp-merchant-icon {
+    font-size: 1.8rem;
+    color: #3a7bd5;
+}
+
+.rzp-merchant-name {
+    font-weight: 700;
+    font-size: 1rem;
+    color: #1a1a2e;
+}
+
+.rzp-route-info {
+    font-size: 0.8rem;
+    color: #888;
+}
+
+.rzp-amount-display {
+    text-align: center;
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin: 12px 0 20px;
+}
+
+.rzp-payment-methods {
+    margin-bottom: 16px;
+}
+
+.rzp-method {
+    border: 2px solid #3a7bd5;
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 0.9rem;
+    color: #3a7bd5;
+    font-weight: 600;
+    background: #f0f6ff;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.rzp-test-note {
+    font-size: 0.75rem;
+    color: #e67e22;
+    background: #fff8e1;
+    border-radius: 8px;
+    padding: 7px 12px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.rzp-pay-btn {
+    background: linear-gradient(135deg, #072654, #1a6de8);
+    color: white;
+    font-size: 1rem;
+    padding: 14px;
+    border-radius: 10px;
+    justify-content: center;
+    gap: 8px;
+}
+
+.rzp-pay-btn:hover:not(:disabled) {
+    opacity: 0.9;
+    transform: translateY(-1px);
+}
+
+.rzp-pay-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.rzp-footer {
+    text-align: center;
+    padding: 10px;
+    font-size: 0.75rem;
+    color: #aaa;
+    border-top: 1px solid #f0f0f0;
+    background: #fafafa;
+}
+
+.rzp-footer i {
+    color: #27ae60;
+    margin-right: 4px;
+}
+
+@media (max-width: 480px) {
+    .offers-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
 /* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
     .navbar {

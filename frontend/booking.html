@@ -34,6 +34,26 @@
                     <input type="number" id="passengers" min="1" max="10" value="1" onchange="updateTotal()">
                 </div>
 
+                <!-- Offers Section -->
+                <div class="offers-section">
+                    <h3><i class="fas fa-tags"></i> Available Offers</h3>
+                    <div class="offers-grid">
+                        <div class="offer-card" id="offerCard_offer1" onclick="selectOffer('offer1')">
+                            <div class="offer-badge">10% OFF</div>
+                            <div class="offer-title">Flat 10% Discount</div>
+                            <div class="offer-desc">Get 10% off on your total booking amount</div>
+                        </div>
+                        <div class="offer-card" id="offerCard_offer2" onclick="selectOffer('offer2')">
+                            <div class="offer-badge">BUY 1 GET 2nd 50% OFF</div>
+                            <div class="offer-title">Buddy Offer</div>
+                            <div class="offer-desc">Buy 1 ticket &amp; get 50% off on the 2nd ticket</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Price Breakdown -->
+                <div id="priceBreakdown" class="price-breakdown" style="display:none;"></div>
+
                 <div class="total-section">
                     <h3>Total: ₹<span id="totalPrice">0.00</span></h3>
                 </div>
@@ -41,9 +61,48 @@
                 <div id="bookingMsg" class="success-msg"></div>
                 <div id="bookingError" class="error-msg"></div>
 
-                <button class="btn btn-primary btn-full" onclick="confirmBooking()">
-                    <i class="fas fa-check-circle"></i> Confirm Booking
+                <button class="btn btn-primary btn-full" onclick="openPaymentModal()">
+                    <i class="fas fa-credit-card"></i> Proceed to Pay
                 </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Razorpay Dummy Payment Modal -->
+    <div id="razorpayModal" class="modal rzp-modal" style="display:none;">
+        <div class="rzp-modal-content">
+            <div class="rzp-header">
+                <div class="rzp-logo">
+                    <i class="fas fa-bolt"></i>
+                    <span>Razorpay</span>
+                </div>
+                <button class="rzp-close" onclick="closePaymentModal()">&times;</button>
+            </div>
+            <div class="rzp-body">
+                <div class="rzp-merchant">
+                    <i class="fas fa-bus-alt rzp-merchant-icon"></i>
+                    <div>
+                        <div class="rzp-merchant-name">TransitGo</div>
+                        <div class="rzp-route-info" id="rzpRouteInfo"></div>
+                    </div>
+                </div>
+                <div class="rzp-amount-display">
+                    ₹<span id="rzpAmount">0.00</span>
+                </div>
+                <div class="rzp-payment-methods">
+                    <div class="rzp-method selected">
+                        <i class="fas fa-credit-card"></i> Card / UPI / Netbanking
+                    </div>
+                </div>
+                <div class="rzp-test-note">
+                    <i class="fas fa-info-circle"></i> Demo mode — no real payment will be charged
+                </div>
+                <button id="rzpPayBtn" class="btn btn-full rzp-pay-btn" onclick="simulatePayment()">
+                    <i class="fas fa-lock"></i> Pay ₹<span id="rzpBtnAmt"></span>
+                </button>
+            </div>
+            <div class="rzp-footer">
+                <i class="fas fa-shield-alt"></i> Secured by Razorpay
             </div>
         </div>
     </div>

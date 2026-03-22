@@ -47,7 +47,23 @@ def create_booking():
     if transport["seats_available"] < passengers:
         return jsonify({"error": f"Only {transport['seats_available']} seats available"}), 400
 
-    total_price = transport["price"] * passengers
+    base_price = transport["price"]
+    offer = data.get("offer", "")
+
+    if offer == "offer1":
+        # 10% discount
+        total_price = round(base_price * passengers * 0.90, 2)
+        discount_amount = round(base_price * passengers * 0.10, 2)
+    elif offer == "offer2":
+        # Buy 1 get 2nd at 50% off (applies to every pair)
+        pairs = passengers // 2
+        remaining = passengers % 2
+        total_price = round(pairs * base_price * 1.5 + remaining * base_price, 2)
+        discount_amount = round(base_price * passengers - total_price, 2)
+    else:
+        total_price = round(base_price * passengers, 2)
+        discount_amount = 0.0
+        offer = ""
 
     booking = {
         "user_id": user["user_id"],
@@ -60,6 +76,9 @@ def create_booking():
         "departure_time": transport["departure_time"],
         "arrival_time": transport["arrival_time"],
         "passengers": passengers,
+        "base_price": round(base_price * passengers, 2),
+        "discount_amount": discount_amount,
+        "offer_applied": offer,
         "total_price": total_price,
         "status": "confirmed",
         "booked_at": datetime.utcnow()
@@ -76,6 +95,7 @@ def create_booking():
     return jsonify({
         "message": "Booking confirmed!",
         "booking_id": str(result.inserted_id),
+        "discount_amount": discount_amount,
         "total_price": total_price
     }), 201
 
