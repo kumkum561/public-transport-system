@@ -17,7 +17,7 @@ function logout() {
 }
 
 function getModeIcon(mode) {
-    const icons = { "Bus": "fa-bus", "Train": "fa-train", "Metro": "fa-subway", "Ferry": "fa-ship" };
+    const icons = { "Bus": "fa-bus", "Train": "fa-train", "Metro": "fa-subway" };
     return icons[mode] || "fa-bus";
 }
 

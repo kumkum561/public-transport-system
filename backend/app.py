@@ -92,18 +92,6 @@ def init_db():
                     "status": "active"
                 },
                 {
-                    "mode": "Ferry",
-                    "route_number": "F-404",
-                    "source": "East Dock",
-                    "destination": "West Harbor",
-                    "departure_time": "09:00",
-                    "arrival_time": "10:30",
-                    "price": 120.00,
-                    "seats_available": 50,
-                    "total_seats": 60,
-                    "status": "active"
-                },
-                {
                     "mode": "Bus",
                     "route_number": "B-105",
                     "source": "Mall Plaza",

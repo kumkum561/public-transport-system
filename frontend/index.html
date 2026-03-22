@@ -32,7 +32,7 @@
     <section class="hero">
         <div class="hero-content">
             <h1>Your Journey Starts Here</h1>
-            <p>Find and book public transport across the city — Bus, Train, Metro & Ferry</p>
+            <p>Find and book public transport across the city — Bus, Train & Metro</p>
 
             <div class="search-box-hero">
                 <div class="search-inputs">
@@ -51,7 +51,6 @@
                             <option value="Bus">Bus</option>
                             <option value="Train">Train</option>
                             <option value="Metro">Metro</option>
-                            <option value="Ferry">Ferry</option>
                         </select>
                     </div>
                     <button class="btn btn-primary" onclick="heroSearch()">
@@ -69,7 +68,7 @@
             <div class="feature-card">
                 <i class="fas fa-route"></i>
                 <h3>Multiple Routes</h3>
-                <p>Bus, Train, Metro, Ferry — all modes of transport in one place</p>
+                <p>Bus, Train, Metro — all modes of transport in one place</p>
             </div>
             <div class="feature-card">
                 <i class="fas fa-tag"></i>
@@ -115,7 +114,6 @@
                 <p><i class="fas fa-bus"></i> Bus</p>
                 <p><i class="fas fa-train"></i> Train</p>
                 <p><i class="fas fa-subway"></i> Metro</p>
-                <p><i class="fas fa-ship"></i> Ferry</p>
             </div>
         </div>
         <div class="footer-bottom">
@@ -196,8 +194,7 @@
             const icons = {
                 "Bus": "fa-bus",
                 "Train": "fa-train",
-                "Metro": "fa-subway",
-                "Ferry": "fa-ship"
+                "Metro": "fa-subway"
             };
             return icons[mode] || "fa-bus";
         }
