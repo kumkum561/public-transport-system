@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - TransitGo</title>
+    <link rel="stylesheet" href="css/js/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar admin-nav">
+        <div class="nav-brand">
+            <a href="index.html"><i class="fas fa-bus-alt"></i> <span>TransitGo Admin</span></a>
+        </div>
+        <div class="nav-links">
+            <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </div>
+    </nav>
+
+    <div class="admin-container">
+        <div class="admin-header">
+            <h1><i class="fas fa-cogs"></i> Admin Dashboard</h1>
+            <p>Manage all transport routes, schedules, and pricing</p>
+        </div>
+
+        <!-- Add Transport Form -->
+        <div class="admin-section">
+            <div class="section-header" onclick="toggleSection('addForm')">
+                <h2><i class="fas fa-plus-circle"></i> Add New Transport</h2>
+                <i class="fas fa-chevron-down"></i>
+            </div>
+            <div id="addForm" class="section-body">
+                <form id="addTransportForm" onsubmit="addTransport(event)">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Mode of Transport</label>
+                            <select id="addMode" required>
+                                <option value="">Select Mode</option>
+                                <option value="Bus">Bus</option>
+                                <option value="Train">Train</option>
+                                <option value="Metro">Metro</option>
+                                <option value="Ferry">Ferry</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Route Number</label>
+                            <input type="text" id="addRouteNumber" placeholder="e.g., B-101" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Source</label>
+                            <input type="text" id="addSource" placeholder="Starting point" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Destination</label>
+                            <input type="text" id="addDestination" placeholder="End point" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Departure Time</label>
+                            <input type="time" id="addDeparture" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Arrival Time</label>
+                            <input type="time" id="addArrival" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Price (₹)</label>
+                            <input type="number" id="addPrice" placeholder="Ticket price" min="1" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Total Seats</label>
+                            <input type="number" id="addSeats" placeholder="Number of seats" min="1" required>
+                        </div>
+                    </div>
+
+                    <div id="addMsg" class="success-msg"></div>
+                    <div id="addError" class="error-msg"></div>
+
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Add Transport
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Transport List -->
+        <div class="admin-section">
+            <div class="section-header">
+                <h2><i class="fas fa-list"></i> All Transports</h2>
+                <button class="btn btn-sm btn-secondary" onclick="loadAdminTransports()">
+                    <i class="fas fa-sync"></i> Refresh
+                </button>
+            </div>
+            <div id="adminTransportList" class="admin-transport-list">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div id="editModal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-edit"></i> Edit Transport</h2>
+                <span class="close-modal" onclick="closeModal()">&times;</span>
+            </div>
+            <form id="editTransportForm" onsubmit="updateTransport(event)">
+                <input type="hidden" id="editId">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Mode</label>
+                        <select id="editMode" required>
+                            <option value="Bus">Bus</option>
+                            <option value="Train">Train</option>
+                            <option value="Metro">Metro</option>
+                            <option value="Ferry">Ferry</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Route Number</label>
+                        <input type="text" id="editRouteNumber" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Source</label>
+                        <input type="text" id="editSource" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Destination</label>
+                        <input type="text" id="editDestination" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Departure</label>
+                        <input type="time" id="editDeparture" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Arrival</label>
+                        <input type="time" id="editArrival" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Price (₹)</label>
+                        <input type="number" id="editPrice" min="1" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Total Seats</label>
+                        <input type="number" id="editSeats" min="1" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Available Seats</label>
+                        <input type="number" id="editAvailable" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select id="editStatus">
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="editMsg" class="success-msg"></div>
+                <div id="editError" class="error-msg"></div>
+
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Save Changes
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script src="css/js/admin.js"></script>
+</body>
+</html>

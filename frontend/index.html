@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Public Transport System</title>
+    <link rel="stylesheet" href="css/js/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-brand">
+            <i class="fas fa-bus-alt"></i>
+            <span>TransitGo</span>
+        </div>
+        <div class="nav-links">
+            <a href="index.html" class="active">Home</a>
+            <a href="search.html">Search Routes</a>
+            <a href="login.html" id="loginBtn">Login</a>
+            <a href="register.html" id="registerBtn">Register</a>
+            <a href="dashboard.html" id="dashboardBtn" style="display:none;">Dashboard</a>
+            <a href="#" id="logoutBtn" style="display:none;" onclick="logout()">Logout</a>
+            <a href="admin-login.html" class="admin-link">Admin</a>
+        </div>
+        <div class="hamburger" onclick="toggleMobileMenu()">
+            <i class="fas fa-bars"></i>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Your Journey Starts Here</h1>
+            <p>Find and book public transport across the city — Bus, Train, Metro & Ferry</p>
+
+            <div class="search-box-hero">
+                <div class="search-inputs">
+                    <div class="input-group">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <input type="text" id="heroSource" placeholder="From (Source)">
+                    </div>
+                    <div class="input-group">
+                        <i class="fas fa-map-pin"></i>
+                        <input type="text" id="heroDestination" placeholder="To (Destination)">
+                    </div>
+                    <div class="input-group">
+                        <i class="fas fa-bus"></i>
+                        <select id="heroMode">
+                            <option value="">All Modes</option>
+                            <option value="Bus">Bus</option>
+                            <option value="Train">Train</option>
+                            <option value="Metro">Metro</option>
+                            <option value="Ferry">Ferry</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary" onclick="heroSearch()">
+                        <i class="fas fa-search"></i> Search
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features -->
+    <section class="features">
+        <h2>Why Choose TransitGo?</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <i class="fas fa-route"></i>
+                <h3>Multiple Routes</h3>
+                <p>Bus, Train, Metro, Ferry — all modes of transport in one place</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-tag"></i>
+                <h3>Best Prices</h3>
+                <p>Transparent pricing with no hidden charges</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-clock"></i>
+                <h3>Real-time Info</h3>
+                <p>Up-to-date schedules, timings, and seat availability</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-ticket-alt"></i>
+                <h3>Easy Booking</h3>
+                <p>Book your tickets in seconds with instant confirmation</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Available Transports Preview -->
+    <section class="transports-preview">
+        <h2>Available Routes</h2>
+        <div id="transportsList" class="transport-grid">
+            <!-- Populated by JS -->
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3><i class="fas fa-bus-alt"></i> TransitGo</h3>
+                <p>Your reliable public transport booking system</p>
+            </div>
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <a href="search.html">Search Routes</a>
+                <a href="login.html">Login</a>
+                <a href="register.html">Register</a>
+            </div>
+            <div class="footer-section">
+                <h3>Transport Modes</h3>
+                <p><i class="fas fa-bus"></i> Bus</p>
+                <p><i class="fas fa-train"></i> Train</p>
+                <p><i class="fas fa-subway"></i> Metro</p>
+                <p><i class="fas fa-ship"></i> Ferry</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 TransitGo - Public Transport System. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Check login state
+        const token = localStorage.getItem("token");
+        const role = localStorage.getItem("role");
+
+        if (token && role === "user") {
+            document.getElementById("loginBtn").style.display = "none";
+            document.getElementById("registerBtn").style.display = "none";
+            document.getElementById("dashboardBtn").style.display = "inline";
+            document.getElementById("logoutBtn").style.display = "inline";
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = "index.html";
+        }
+
+        function toggleMobileMenu() {
+            document.querySelector(".nav-links").classList.toggle("mobile-active");
+        }
+
+        function heroSearch() {
+            const source = document.getElementById("heroSource").value;
+            const dest = document.getElementById("heroDestination").value;
+            const mode = document.getElementById("heroMode").value;
+            window.location.href = `search.html?source=${source}&destination=${dest}&mode=${mode}`;
+        }
+
+        // Load transports preview
+        async function loadTransports() {
+            try {
+                const res = await fetch("/api/transport/list");
+                const data = await res.json();
+                const container = document.getElementById("transportsList");
+
+                if (data.transports.length === 0) {
+                    container.innerHTML = '<p class="no-data">No routes available at the moment.</p>';
+                    return;
+                }
+
+                container.innerHTML = data.transports.map(t => `
+                    <div class="transport-card">
+                        <div class="transport-mode ${t.mode.toLowerCase()}">
+                            <i class="fas ${getModeIcon(t.mode)}"></i>
+                            <span>${t.mode}</span>
+                        </div>
+                        <div class="transport-details">
+                            <div class="route-info">
+                                <span class="route-number">${t.route_number}</span>
+                            </div>
+                            <div class="route-path">
+                                <span class="source"><i class="fas fa-circle"></i> ${t.source}</span>
+                                <span class="arrow"><i class="fas fa-long-arrow-alt-right"></i></span>
+                                <span class="dest"><i class="fas fa-map-marker-alt"></i> ${t.destination}</span>
+                            </div>
+                            <div class="transport-meta">
+                                <span><i class="fas fa-clock"></i> ${t.departure_time} - ${t.arrival_time}</span>
+                                <span><i class="fas fa-chair"></i> ${t.seats_available} seats</span>
+                                <span class="price">₹${t.price.toFixed(2)}</span>
+                            </div>
+                        </div>
+                        <a href="booking.html?id=${t._id}" class="btn btn-sm btn-primary">Book Now</a>
+                    </div>
+                `).join("");
+            } catch (err) {
+                console.error("Error loading transports:", err);
+            }
+        }
+
+        function getModeIcon(mode) {
+            const icons = {
+                "Bus": "fa-bus",
+                "Train": "fa-train",
+                "Metro": "fa-subway",
+                "Ferry": "fa-ship"
+            };
+            return icons[mode] || "fa-bus";
+        }
+
+        loadTransports();
+    </script>
+</body>
+</html>
