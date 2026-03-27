@@ -214,3 +214,126 @@ function logout() {
 
 // Load on page ready
 loadAdminTransports();
+// ===== ADMIN BOOKINGS =====
+async function loadAdminBookings() {
+    const source = document.getElementById("filterSource").value.trim();
+    const dest = document.getElementById("filterDestination").value.trim();
+    const dateFrom = document.getElementById("filterDateFrom").value;
+    const dateTo = document.getElementById("filterDateTo").value;
+
+    const params = new URLSearchParams();
+    if (source) params.append("source", source);
+    if (dest) params.append("destination", dest);
+    if (dateFrom) params.append("date_from", dateFrom);
+    if (dateTo) params.append("date_to", dateTo);
+
+    const container = document.getElementById("adminBookingsList");
+    container.innerHTML = '<p class="no-data"><i class="fas fa-spinner fa-spin"></i> Loading...</p>';
+
+    try {
+        const res = await fetch(`/api/admin/bookings?${params.toString()}`, {
+            headers: { "Authorization": `Bearer ${token}` }
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+            container.innerHTML = `<p class="no-data">Error: ${data.error || "Failed to load bookings"}</p>`;
+            return;
+        }
+
+        if (!data.bookings || data.bookings.length === 0) {
+            container.innerHTML = '<p class="no-data">No bookings found.</p>';
+            return;
+        }
+
+        container.innerHTML = `
+            <p style="font-size:0.85rem; color:#666; margin-bottom:10px;">
+                Showing ${data.count} booking(s)
+            </p>` +
+            data.bookings.map(b => {
+                const seatsHtml = b.selected_seats && b.selected_seats.length > 0
+                    ? `<span><i class="fas fa-chair"></i> Seats: ${b.selected_seats.sort((a,c)=>a-c).join(", ")}</span>`
+                    : `<span><i class="fas fa-users"></i> Passengers: ${b.number_of_tickets}</span>`;
+
+                const qrBadge = b.has_qr
+                    ? `<span class="admin-badge qr-badge"><i class="fas fa-qrcode"></i> QR</span>`
+                    : "";
+
+                const statusClass = b.ticket_status === "Booked" ? "confirmed" : "cancelled";
+                const payBadge = b.payment_status && b.payment_status !== "Nil / Not Available"
+                    ? `<span class="admin-badge pay-badge"><i class="fas fa-rupee-sign"></i> ${b.payment_status}</span>`
+                    : "";
+
+                return `
+                <div class="admin-booking-item">
+                    <div class="booking-user-info">
+                        <strong>${b.user_name}</strong>
+                        <span>${b.email}</span>
+                        <span><i class="fas fa-phone"></i> ${b.phone}</span>
+                    </div>
+                    <div class="booking-route-info">
+                        <span><i class="fas fa-route"></i> ${b.mode} ${b.route_number}</span>
+                        <span>${b.source} → ${b.destination}</span>
+                        <span><i class="fas fa-clock"></i> ${b.departure_time} - ${b.arrival_time}</span>
+                    </div>
+                    <div class="booking-ticket-info">
+                        ${seatsHtml}
+                        <span><i class="fas fa-calendar"></i> ${b.booking_date_time}</span>
+                        <span class="booking-status ${statusClass}">${b.ticket_status}</span>
+                        ${qrBadge}${payBadge}
+                    </div>
+                    <div class="booking-price-col">
+                        <strong>₹${b.ticket_price.toFixed(2)}</strong>
+                        <button class="btn btn-sm btn-danger" onclick="adminDeleteBooking('${b._id}')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>`;
+            }).join("");
+    } catch (err) {
+        container.innerHTML = '<p class="no-data">Server error loading bookings.</p>';
+        console.error(err);
+    }
+}
+
+function clearBookingFilters() {
+    document.getElementById("filterSource").value = "";
+    document.getElementById("filterDestination").value = "";
+    document.getElementById("filterDateFrom").value = "";
+    document.getElementById("filterDateTo").value = "";
+    document.getElementById("adminBookingsList").innerHTML = '<p class="no-data">Click Search to load bookings.</p>';
+}
+
+async function adminDeleteBooking(bookingId) {
+    if (!confirm("Delete this booking permanently?")) return;
+    try {
+        const res = await fetch(`/api/admin/bookings/${bookingId}`, {
+            method: "DELETE",
+            headers: { "Authorization": `Bearer ${token}` }
+        });
+        const data = await res.json();
+        if (res.ok) {
+            loadAdminBookings();
+        } else {
+            alert(data.error || "Failed to delete booking");
+        }
+    } catch (err) {
+        alert("Server error");
+    }
+}
+
+// ===== REVENUE =====
+async function loadRevenue() {
+    try {
+        const res = await fetch("/api/admin/revenue", {
+            headers: { "Authorization": `Bearer ${token}` }
+        });
+        const data = await res.json();
+        if (res.ok) {
+            document.getElementById("revenueDisplay").textContent =
+                `Total Revenue: ₹${data.total_revenue.toFixed(2)}`;
+        }
+    } catch (err) {
+        console.error("Error loading revenue:", err);
+    }
+}

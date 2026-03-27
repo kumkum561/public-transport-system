@@ -88,10 +88,17 @@ def get_bookings():
             "source": b.get('source') or "Nil / Not Available",
             "destination": b.get('destination') or "Nil / Not Available",
             "mode": b.get('mode') or "Nil / Not Available",
+            "route_number": b.get('route_number') or "Nil / Not Available",
+            "departure_time": b.get('departure_time') or "Nil / Not Available",
+            "arrival_time": b.get('arrival_time') or "Nil / Not Available",
             "ticket_price": float(b.get('total_price', 0) or 0),
             "number_of_tickets": int(b.get('passengers', 0) or 0),
+            "selected_seats": b.get('selected_seats') or [],
             "booking_date_time": booked_at_str,
             "ticket_status": ticket_status,
+            "payment_status": b.get('payment_status') or "Nil / Not Available",
+            "payment_method": b.get('payment_method') or "Nil / Not Available",
+            "has_qr": bool(b.get('qr_code')),
             "transport_id": b.get('transport_id')
         })
 
