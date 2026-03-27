@@ -23,6 +23,7 @@ from routes.booking import booking_bp
 from routes.notifications import notifications_bp
 from routes.payment import payment_bp
 from routes.admin_booking import admin_bp
+from routes.contact import contact_bp
 
 app.register_blueprint(auth_bp, url_prefix="/api/auth")
 app.register_blueprint(transport_bp, url_prefix="/api/transport")
@@ -30,6 +31,7 @@ app.register_blueprint(booking_bp, url_prefix="/api/booking")
 app.register_blueprint(notifications_bp, url_prefix="/api/notifications")
 app.register_blueprint(payment_bp, url_prefix="/api/payment")
 app.register_blueprint(admin_bp)
+app.register_blueprint(contact_bp, url_prefix="/api/contact")
 
 # Serve frontend pages
 @app.route("/")
