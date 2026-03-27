@@ -29,9 +29,19 @@
             </div>
 
             <div class="booking-form">
-                <div class="form-group">
-                    <label><i class="fas fa-users"></i> Number of Passengers</label>
-                    <input type="number" id="passengers" min="1" max="10" value="1" onchange="updateTotal()">
+
+                <!-- Seat Selection -->
+                <div class="seat-selection-section">
+                    <h3><i class="fas fa-chair"></i> Select Your Seats</h3>
+                    <div class="seat-legend">
+                        <span class="legend-item"><span class="legend-box seat-available"></span> Available</span>
+                        <span class="legend-item"><span class="legend-box seat-booked-display"></span> Booked</span>
+                        <span class="legend-item"><span class="legend-box seat-selected-display"></span> Selected</span>
+                    </div>
+                    <div id="seatMap" class="seat-map">
+                        <p class="loading-text"><i class="fas fa-spinner fa-spin"></i> Loading seats...</p>
+                    </div>
+                    <p id="seatSelectionInfo" class="seat-selection-info">No seats selected</p>
                 </div>
 
                 <!-- Offers Section -->
@@ -68,13 +78,13 @@
         </div>
     </div>
 
-    <!-- Razorpay Dummy Payment Modal -->
+    <!-- Payment Modal -->
     <div id="razorpayModal" class="modal rzp-modal" style="display:none;">
         <div class="rzp-modal-content">
             <div class="rzp-header">
                 <div class="rzp-logo">
                     <i class="fas fa-bolt"></i>
-                    <span>Razorpay</span>
+                    <span>Secure Payment</span>
                 </div>
                 <button class="rzp-close" onclick="closePaymentModal()">&times;</button>
             </div>
@@ -89,6 +99,9 @@
                 <div class="rzp-amount-display">
                     ₹<span id="rzpAmount">0.00</span>
                 </div>
+                <div class="rzp-order-id" id="rzpOrderDisplay" style="display:none;">
+                    <i class="fas fa-receipt"></i> Order: <span id="rzpOrderId"></span>
+                </div>
                 <div class="rzp-payment-methods">
                     <div class="rzp-method selected">
                         <i class="fas fa-credit-card"></i> Card / UPI / Netbanking
@@ -97,12 +110,12 @@
                 <div class="rzp-test-note">
                     <i class="fas fa-info-circle"></i> Demo mode — no real payment will be charged
                 </div>
-                <button id="rzpPayBtn" class="btn btn-full rzp-pay-btn" onclick="simulatePayment()">
+                <button id="rzpPayBtn" class="btn btn-full rzp-pay-btn" onclick="processPayment()">
                     <i class="fas fa-lock"></i> Pay ₹<span id="rzpBtnAmt"></span>
                 </button>
             </div>
             <div class="rzp-footer">
-                <i class="fas fa-shield-alt"></i> Secured by Razorpay
+                <i class="fas fa-shield-alt"></i> Secured by TransitGo Pay
             </div>
         </div>
     </div>

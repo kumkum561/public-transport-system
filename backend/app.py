@@ -20,10 +20,16 @@ app.bcrypt = bcrypt
 from routes.auth import auth_bp
 from routes.transport import transport_bp
 from routes.booking import booking_bp
+from routes.notifications import notifications_bp
+from routes.payment import payment_bp
+from routes.admin_booking import admin_bp
 
 app.register_blueprint(auth_bp, url_prefix="/api/auth")
 app.register_blueprint(transport_bp, url_prefix="/api/transport")
 app.register_blueprint(booking_bp, url_prefix="/api/booking")
+app.register_blueprint(notifications_bp, url_prefix="/api/notifications")
+app.register_blueprint(payment_bp, url_prefix="/api/payment")
+app.register_blueprint(admin_bp)
 
 # Serve frontend pages
 @app.route("/")
@@ -40,6 +46,8 @@ def init_db():
         # Create indexes
         mongo.db.users.create_index("email", unique=True)
         mongo.db.transports.create_index([("source", 1), ("destination", 1)])
+        mongo.db.notifications.create_index([("user_id", 1), ("created_at", -1)])
+        mongo.db.payment_orders.create_index("order_id", unique=True)
 
         # Seed admin if not exists
         admin = mongo.db.admins.find_one({"username": Config.ADMIN_USERNAME})
@@ -65,6 +73,7 @@ def init_db():
                     "price": 45.00,
                     "seats_available": 40,
                     "total_seats": 50,
+                    "booked_seats": [],
                     "status": "active"
                 },
                 {
@@ -77,6 +86,7 @@ def init_db():
                     "price": 75.00,
                     "seats_available": 150,
                     "total_seats": 200,
+                    "booked_seats": [],
                     "status": "active"
                 },
                 {
@@ -89,6 +99,7 @@ def init_db():
                     "price": 25.00,
                     "seats_available": 80,
                     "total_seats": 100,
+                    "booked_seats": [],
                     "status": "active"
                 },
                 {
@@ -101,6 +112,7 @@ def init_db():
                     "price": 30.00,
                     "seats_available": 35,
                     "total_seats": 50,
+                    "booked_seats": [],
                     "status": "active"
                 }
             ]
