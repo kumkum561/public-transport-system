@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us - TransitGo</title>
+    <link rel="stylesheet" href="css/js/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-brand">
+            <a href="index.html"><i class="fas fa-bus-alt"></i> <span>TransitGo</span></a>
+        </div>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="search.html">Search Routes</a>
+            <a href="contact.html" class="active">Contact Us</a>
+            <a href="login.html" id="loginBtn">Login</a>
+            <a href="register.html" id="registerBtn">Register</a>
+            <a href="dashboard.html" id="dashboardBtn" style="display:none;">Dashboard</a>
+            <a href="#" id="logoutBtn" style="display:none;" onclick="logout()">Logout</a>
+            <a href="admin-login.html" class="admin-link">Admin</a>
+        </div>
+        <div class="hamburger" onclick="toggleMobileMenu()">
+            <i class="fas fa-bars"></i>
+        </div>
+    </nav>
+
+    <div class="auth-container">
+        <div class="auth-card contact-card">
+            <div class="auth-header">
+                <i class="fas fa-envelope-open-text"></i>
+                <h2>Contact Us</h2>
+                <p>Have a question or feedback? We'd love to hear from you.</p>
+            </div>
+
+            <form id="contactForm" onsubmit="handleContact(event)" novalidate>
+                <div class="form-group">
+                    <label><i class="fas fa-user"></i> Name</label>
+                    <input type="text" id="name" placeholder="Your full name" required>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-envelope"></i> Email</label>
+                    <input type="email" id="email" placeholder="Your email address" required>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-tag"></i> Subject</label>
+                    <input type="text" id="subject" placeholder="Brief subject of your message" required>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-comment-dots"></i> Message</label>
+                    <textarea id="message" rows="5" placeholder="Write your message here..." required></textarea>
+                </div>
+
+                <div id="errorMsg" class="error-msg"></div>
+                <div id="successMsg" class="success-msg"></div>
+
+                <button type="submit" class="btn btn-primary btn-full" id="submitBtn">
+                    <i class="fas fa-paper-plane"></i> Send Message
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Check login state
+        const token = localStorage.getItem("token");
+        const role = localStorage.getItem("role");
+
+        if (token && role === "user") {
+            document.getElementById("loginBtn").style.display = "none";
+            document.getElementById("registerBtn").style.display = "none";
+            document.getElementById("dashboardBtn").style.display = "inline";
+            document.getElementById("logoutBtn").style.display = "inline";
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = "index.html";
+        }
+
+        function toggleMobileMenu() {
+            document.querySelector(".nav-links").classList.toggle("mobile-active");
+        }
+
+        function showError(msg) {
+            const el = document.getElementById("errorMsg");
+            el.textContent = msg;
+            el.classList.add("show");
+            document.getElementById("successMsg").classList.remove("show");
+        }
+
+        function showSuccess(msg) {
+            const el = document.getElementById("successMsg");
+            el.textContent = msg;
+            el.classList.add("show");
+            document.getElementById("errorMsg").classList.remove("show");
+        }
+
+        function isValidEmail(email) {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        }
+
+        async function handleContact(e) {
+            e.preventDefault();
+
+            const name = document.getElementById("name").value.trim();
+            const email = document.getElementById("email").value.trim();
+            const subject = document.getElementById("subject").value.trim();
+            const message = document.getElementById("message").value.trim();
+
+            // Client-side validation
+            if (!name) return showError("Please enter your name.");
+            if (!email) return showError("Please enter your email address.");
+            if (!isValidEmail(email)) return showError("Please enter a valid email address.");
+            if (!subject) return showError("Please enter a subject.");
+            if (!message) return showError("Please enter your message.");
+
+            const btn = document.getElementById("submitBtn");
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+
+            try {
+                const res = await fetch("/api/contact", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ name, email, subject, message })
+                });
+                const data = await res.json();
+
+                if (res.ok) {
+                    showSuccess(data.message || "Your message has been sent successfully!");
+                    document.getElementById("contactForm").reset();
+                } else {
+                    showError(data.error || "Something went wrong. Please try again.");
+                }
+            } catch (err) {
+                showError("Network error. Please check your connection and try again.");
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Message';
+            }
+        }
+    </script>
+</body>
+</html>
